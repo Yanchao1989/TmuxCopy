@@ -12,6 +12,9 @@ import vim
 import os
 import uuid
 
+def run_tmux_cmd(cmd):
+    os.system("pidof tmux 2>/dev/null && " + cmd) #make sure we have tmux running
+
 def  tmuxCopyQuote(lines):
     result="\""
     for line in lines:
@@ -38,7 +41,7 @@ for line in buf.range(start, end):
 f.close()
 
 vim.eval("setreg('\"', {0})".format(tmuxCopyQuote(lines)))
-os.system("tmux load-buffer %s"%(file_name))
+run_tmux_cmd("tmux load-buffer %s"%(file_name))
 
 os.system("rm -f %s"%(file_name))
 EOF
@@ -54,7 +57,7 @@ f.write(content)
 f.close()
 
 vim.eval("setreg('\"', {0})".format(tmuxCopyQuote(content)))
-os.system("tmux load-buffer %s"%(file_name))
+run_tmux_cmd("tmux load-buffer %s"%(file_name))
 
 os.system("rm -f %s"%(file_name))
 EOF
@@ -63,7 +66,7 @@ endfunction
 function! TmuxPaste()
 python << EOF
 file_name = "tmux_copy_"+uuid.uuid4().hex
-os.system("tmux save-buffer %s"%(file_name))
+run_tmux_cmd("tmux save-buffer %s"%(file_name))
 
 f = file(file_name, 'r')
 lines = f.readlines()
